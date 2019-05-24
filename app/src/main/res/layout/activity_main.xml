@@ -5,15 +5,29 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal"
+    android:padding="20dp"
     tools:context="com.ltz.hid_demo.MainActivity">
 
+
+
+        <Button
+            android:id="@+id/btn_qr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="扫码"
+            />
+
     <Button
-        android:id="@+id/btn_qr"
+        android:id="@+id/btn_clear"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="扫码"
+        android:text="清除扫码结果"
         />
+
+
+
 
     <TextView
         android:layout_width="wrap_content"
@@ -22,11 +36,36 @@
         android:text="以下为扫码结果"
         />
 
-    <TextView
-        android:id="@+id/text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        />
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:orientation="horizontal"
+            android:weightSum="2">
+            <TextView
+                android:id="@+id/text"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:textSize="18dp"
+                android:textColor="@color/colorPrimary"
+                android:layout_marginTop="5dp"
+                />
+            <com.ltz.hid_demo.widget.CustomEditText
+                android:id="@+id/mCustomEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                />
+        </LinearLayout>
+
+
+
+
+    </android.support.v4.widget.NestedScrollView>
+
 
 </LinearLayout>

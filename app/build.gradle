@@ -16,6 +16,12 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+
+        sourceSets {
+            main {
+                jniLibs.srcDirs = ['libs']
+            }
+        }
     }
 }
 
@@ -24,9 +30,10 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:26.+'
 
-    /*****zxing*********/
-    compile 'com.google.zxing:android-core:3.3.0'
-    compile 'com.google.zxing:core:3.3.0'
-    compile 'com.google.zxing:android-integration:3.3.0'
+    /*****zxing*******/
+//    compile 'com.google.zxing:android-core:3.3.0'
+//    compile 'com.google.zxing:core:3.3.0'
+//    compile 'com.google.zxing:android-integration:3.3.0'
+
 
 }

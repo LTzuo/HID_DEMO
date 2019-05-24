@@ -1,12 +1,8 @@
 package com.ltz.hid_demo;
 
-
-import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,25 +10,26 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
+import com.ltz.hid_demo.widget.CustomEditText;
 
 /**
  * 接收扫码枪扫描结果
  */
 public class MainActivity extends AppCompatActivity {
 
-    private static final int requestCode = 0;
+    private static final int REQUEST_CODE = 0;
 
     private ScanKeyManager scanKeyManager;
 
     private TextView text;
 
-    private Button btn_qr;
+    private CustomEditText mCustomEditText;
+
+    private Button btn_qr,btn_clear;
 
     private StringBuffer buffer = new StringBuffer();
+    private StringBuffer buffer1 = new StringBuffer();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,16 +37,28 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         text = (TextView) findViewById(R.id.text);
+        mCustomEditText = (CustomEditText) findViewById(R.id.mCustomEditText);
 
         //拦截扫码器回调,获取扫码内容
         scanKeyManager = new ScanKeyManager(new ScanKeyManager.OnScanValueListener() {
             @Override
             public void onScanValue(String value) {
-                buffer.append("扫码结果==>" + value + "\n");
+                buffer.append("-->" + value);
                 Log.i("LOG", value);
-                text.setText(buffer.toString());
+              //  text.setText(buffer.toString());
+                mCustomEditText.setText(buffer.toString());
             }
         });
+
+
+
+//        mCustomEditText.setScanCodeListener(new CustomEditText.ScanCodeListener() {
+//            @Override
+//            public void handleCode(String code) {
+//                buffer1.append("-->" + code);
+//                mCustomEditText.setText(buffer1.toString());
+//            }
+//        });
 
         btn_qr = (Button) findViewById(R.id.btn_qr);
         btn_qr.setOnClickListener(new View.OnClickListener() {
@@ -57,7 +66,18 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // 扫码
                 // intent.putExtra("autoEnlarged", true);
-                requestPermission();
+                goScanner();
+            }
+        });
+
+        btn_clear = (Button) findViewById(R.id.btn_clear);
+        btn_clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                buffer.setLength(0);
+                buffer1.setLength(0);
+              //  text.setText(buffer.toString());
+                mCustomEditText.setText(buffer1.toString());
             }
         });
     }
@@ -67,26 +87,27 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         if (event.getKeyCode() != KeyEvent.KEYCODE_BACK) {
+//            buffer.append("-->" + event.getDisplayLabel());
+//            text.setText(buffer.toString());
             scanKeyManager.analysisKeyEvent(event);
+//            mCustomEditText.dispatchKeyEvent(event);
             return true;
         }
         return super.dispatchKeyEvent(event);
     }
 
-
-    private void requestPermission() {
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.CAMERA)) {
-                Toast.makeText(MainActivity.this, "二维码扫码需要相机权限", Toast.LENGTH_SHORT).show();
-            } else {
-                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, 0);
-            }
-        } else {
-            goScanner();
-        }
-    }
-
+//    private void requestPermission() {
+//        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA)
+//                != PackageManager.PERMISSION_GRANTED) {
+//            if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.CAMERA)) {
+//                Toast.makeText(MainActivity.this, "二维码扫码需要相机权限", Toast.LENGTH_SHORT).show();
+//            } else {
+//                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, 0);
+//            }
+//        } else {
+//            goScanner();
+//        }
+//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
@@ -102,22 +123,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void goScanner() {
-//        IntentIntegrator integrator = new IntentIntegrator(this);
-//        integrator.initiateScan();
-        Intent intent = new Intent();
-        intent.setClass(MainActivity.this, MipcaActivityCapture.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivityForResult(intent, SCANNIN_GREQUEST_CODE);
+//        Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
+//        startActivityForResult(intent, REQUEST_CODE);
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        if (scanResult != null) {
-            // handle scan result
-            Toast.makeText(this, scanResult.toString(), Toast.LENGTH_SHORT).show();
-        }
-        // else continue with any other code you need in the method
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        /**
+         * 处理二维码扫描结果
+         */
+//        if (requestCode == REQUEST_CODE) {
+//            //处理扫描结果（在界面上显示）
+//            if (null != data) {
+//                Bundle bundle = data.getExtras();
+//                if (bundle == null) {
+//                    return;
+//                }
+//                if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_SUCCESS) {
+//                    String result = bundle.getString(CodeUtils.RESULT_STRING);
+//                    Toast.makeText(this, "解析结果:" + result, Toast.LENGTH_LONG).show();
+//                } else if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_FAILED) {
+//                    Toast.makeText(MainActivity.this, "解析二维码失败", Toast.LENGTH_LONG).show();
+//                }
+//            }
+//        }
     }
-
 
 }
