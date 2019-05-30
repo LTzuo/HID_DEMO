@@ -1,0 +1,12 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.google.zxing.client.android">
+
+    <application
+        android:allowBackup="true"
+        android:supportsRtl="true">
+        <activity
+            android:name="com.google.zxing.ISBNActivity"
+            android:windowSoftInputMode="adjustUnspecified|stateVisible" />
+    </application>
+
+</manifest>

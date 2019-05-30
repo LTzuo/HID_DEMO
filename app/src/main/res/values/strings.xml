@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">HID_DEMO</string>
 
+    <string name="string_socket_demo">Socket测试</string>
+    <string name="string_socket_server">Socket服务端</string>
+    <string name="string_socket_client">Socket客户端</string>
+
 
 </resources>

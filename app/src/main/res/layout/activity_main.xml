@@ -19,6 +19,14 @@
             />
 
     <Button
+        android:id="@+id/btn_socket"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="socket测试"
+        />
+
+    <Button
         android:id="@+id/btn_clear"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

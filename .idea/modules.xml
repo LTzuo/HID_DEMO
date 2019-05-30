@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/HID_DEMO.iml" filepath="$PROJECT_DIR$/HID_DEMO.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/library_zxing/library_zxing.iml" filepath="$PROJECT_DIR$/library_zxing/library_zxing.iml" />
     </modules>
   </component>
 </project>

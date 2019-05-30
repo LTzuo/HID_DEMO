@@ -1,16 +1,24 @@
 package com.ltz.hid_demo;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.zxing.client.android.CaptureActivity2;
+import com.ltz.hid_demo.socket.SocketDemoActivity;
 import com.ltz.hid_demo.widget.CustomEditText;
 
 /**
@@ -18,7 +26,9 @@ import com.ltz.hid_demo.widget.CustomEditText;
  */
 public class MainActivity extends AppCompatActivity {
 
-    private static final int REQUEST_CODE = 0;
+
+    private static final int SCAN_REQUEST_CODE = 100;
+    private static final int CAMERA_PERMISSION = 110;
 
     private ScanKeyManager scanKeyManager;
 
@@ -26,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     private CustomEditText mCustomEditText;
 
-    private Button btn_qr,btn_clear;
+    private Button btn_qr,btn_clear,btn_socket;
 
     private StringBuffer buffer = new StringBuffer();
     private StringBuffer buffer1 = new StringBuffer();
@@ -64,9 +74,15 @@ public class MainActivity extends AppCompatActivity {
         btn_qr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 扫码
-                // intent.putExtra("autoEnlarged", true);
-                goScanner();
+                if (Build.VERSION.SDK_INT > 22) {
+                    if (ContextCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{android.Manifest.permission.CAMERA}, CAMERA_PERMISSION);
+                    } else {
+                        startScanActivity();
+                    }
+                } else {
+                    startScanActivity();
+                }
             }
         });
 
@@ -78,6 +94,15 @@ public class MainActivity extends AppCompatActivity {
                 buffer1.setLength(0);
               //  text.setText(buffer.toString());
                 mCustomEditText.setText(buffer1.toString());
+            }
+        });
+
+
+        btn_socket = (Button) findViewById(R.id.btn_socket);
+        btn_socket.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+              startActivity(new Intent(MainActivity.this,SocketDemoActivity.class));
             }
         });
     }
@@ -96,57 +121,51 @@ public class MainActivity extends AppCompatActivity {
         return super.dispatchKeyEvent(event);
     }
 
-//    private void requestPermission() {
-//        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA)
-//                != PackageManager.PERMISSION_GRANTED) {
-//            if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.CAMERA)) {
-//                Toast.makeText(MainActivity.this, "二维码扫码需要相机权限", Toast.LENGTH_SHORT).show();
-//            } else {
-//                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, 0);
-//            }
-//        } else {
-//            goScanner();
-//        }
-//    }
+    private void startScanActivity() {
+        Intent intent = new Intent(MainActivity.this, CaptureActivity2.class);
+        intent.putExtra(CaptureActivity2.USE_DEFUALT_ISBN_ACTIVITY, true);
+        startActivityForResult(intent, SCAN_REQUEST_CODE);
+    }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case 0: {
-                // If request is cancelled, the result arrays are empty.
+            case CAMERA_PERMISSION:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    goScanner();
+                    startScanActivity();
+                } else {
+                    Toast.makeText(MainActivity.this, "请手动打开摄像头权限", Toast.LENGTH_SHORT).show();
                 }
-                return;
-            }
+                break;
+            default:
+                break;
         }
     }
 
-    private void goScanner() {
-//        Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
-//        startActivityForResult(intent, REQUEST_CODE);
+    @Override
+    public int checkSelfPermission(String permission) {
+        return super.checkSelfPermission(permission);
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        /**
-         * 处理二维码扫描结果
-         */
-//        if (requestCode == REQUEST_CODE) {
-//            //处理扫描结果（在界面上显示）
-//            if (null != data) {
-//                Bundle bundle = data.getExtras();
-//                if (bundle == null) {
-//                    return;
-//                }
-//                if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_SUCCESS) {
-//                    String result = bundle.getString(CodeUtils.RESULT_STRING);
-//                    Toast.makeText(this, "解析结果:" + result, Toast.LENGTH_LONG).show();
-//                } else if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_FAILED) {
-//                    Toast.makeText(MainActivity.this, "解析二维码失败", Toast.LENGTH_LONG).show();
-//                }
-//            }
-//        }
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == SCAN_REQUEST_CODE) {
+                //Todo Handle the isbn number entered manually
+                String isbn = data.getStringExtra("CaptureIsbn");
+                if (!TextUtils.isEmpty(isbn)) {
+                    //todo something
+                  //  Toast.makeText(this, "解析到的内容为" + isbn, Toast.LENGTH_LONG).show();
+                    mCustomEditText.setText("主扫解析到的内容为~"+isbn);
+                    if (isbn.contains("http")) {
+//                        Intent intent = new Intent(this, WebViewActivity.class);
+//                        intent.putExtra(WebViewActivity.RESULT, isbn);
+//                        startActivity(intent);
+                    }
+                }
+            }
+        }
     }
 
 }
